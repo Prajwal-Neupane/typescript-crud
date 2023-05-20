@@ -16,10 +16,24 @@ const EditNote = () => {
     title: "",
     text: "",
   });
-  const handleEditSubmit = async () => {
-    const response = await axios.put(`http://localhost:3001/server/note/${id}`);
-    console.log(response.data);
+  const handleEditSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { title, text } = singleUserData;
+    const apiData = { title, text };
+    const response = await axios.put(
+      `http://localhost:3001/server/note/${id}`,
+      apiData
 
+      // {
+      //   headers: {
+      //     apiData,
+      //   },
+      // }
+    );
+    // console.log(response.data);
+    setSingleUserData({ title: "", text: "" });
+    // console.log(id);
+    // console.log(apiData);
     navigate("/notes");
   };
 

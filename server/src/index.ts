@@ -3,10 +3,14 @@ import "dotenv/config";
 import mongoose from "mongoose";
 // import noteModel from "../models/noteModel";
 import noteRoutes from "../routes/notesRoute";
+import userRoutes from "../routes/userRoute";
 import { defaultText } from "../controllers/notesController";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
+import session from "express-session";
+import env from "../utils/validateEnv";
+import MongoStore from "connect-mongo";
 // import createHttpError from "http-errors";
 
 const app = express();
@@ -31,8 +35,24 @@ const connectDB = async () => {
 };
 connectDB();
 
+app.use(
+  session({
+    secret: env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 60 * 60 * 1000,
+    },
+    rolling: true,
+    store: MongoStore.create({
+      mongoUrl: env.MONGO_URL,
+    }),
+  })
+);
+
 app.use("/server", noteRoutes);
 app.get("/*", defaultText);
+app.use("/server", userRoutes);
 
 app.listen(port, () => {
   console.log("Server is running at port 3001");
