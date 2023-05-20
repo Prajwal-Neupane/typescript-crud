@@ -51,8 +51,9 @@ app.use(
 );
 
 app.use("/server", noteRoutes);
+app.use("/user", userRoutes);
 app.get("/*", defaultText);
-app.use("/server", userRoutes);
+
 
 app.listen(port, () => {
   console.log("Server is running at port 3001");

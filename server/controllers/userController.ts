@@ -31,6 +31,47 @@ export const registerUser: RequestHandler = async (req, res) => {
     password: hashedPassword,
   });
   req.session.userId = newUser._id;
-  //   const response = await newUser.save();
-  //   res.json(response);
+  const response = await newUser.save();
+  res.json(response);
+};
+
+export const getAuthenticatedUser: RequestHandler = async (req, res) => {
+  const authenticatedUserId = req.session.userId;
+  // res.json(authenticatedUserId);
+
+  if (!authenticatedUserId) {
+    res.json("User not authenticated");
+    return;
+  }
+  const user = await userModel.findById(authenticatedUserId).select("+email");
+  res.json(user);
+};
+export const logoutUser: RequestHandler = (req, res) => {
+  req.session.destroy(() => res.json("Deleted successfully"));
+};
+
+// User Login
+
+export const loginUser: RequestHandler = async (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  const existingUser = await userModel
+    .findOne({ username: username })
+    .select("+password +email");
+
+  if (existingUser) {
+    const checkPassword = await bcrypt.compare(password, existingUser.password);
+
+    if (!checkPassword) {
+      res.json("Password didn't matched");
+    } else {
+      req.session.userId = existingUser._id;
+      res.json(existingUser);
+    }
+  }
+
+  if (!username || !password) {
+    res.json("Credentials missing");
+  }
 };
